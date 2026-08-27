@@ -1,28 +1,28 @@
 ---
 name: budget-review
 description: >
-  用於查核、比較與解讀政府預算刪減、凍結、追加、延遲通過、關鍵依賴與實際執行影響。
-  適用於新聞查核、政治攻防、預算案比較、部會或機關預算爭議。
-  v1.3 新增 Official Source Routing：先判斷問題類型與程序階段，指定正確官方 Source of Record，再依 Amount × Timing × Dependency × Execution 分析。
+  用於查核、比較與解讀政府預算刪減、凍結、追加、延遲通過、關鍵依賴、歷年花費方向與實際執行影響。
+  適用於新聞查核、政治攻防、預算案比較、部會或機關預算爭議，以及「這筆錢歷年花去哪裡」等支出用途分析。
+  v1.4 採 Official Source Routing + Amount × Timing × Dependency × Use-of-Funds × Execution：先指定正確官方 Source of Record，再區分預算允許用途、機關揭露用途、實際支出與公開揭露粒度。
 ---
 
 # Government Budget Review Skill
 
 ## 版本
 
-**v1.3 — Official Source Routing + Amount × Timing × Dependency × Execution**
+**v1.4 — Official Source Routing + Amount × Timing × Dependency × Use-of-Funds × Execution**
 
 ## 目的
 
-當使用者詢問政府預算的「被砍多少」「被凍多少」「是不是刪太多」「預算太晚通過是否影響執行」「某個小科目被刪是否會讓整體計畫失效」「某服務是否因此做不下去」「廠商是否不敢投標」「是否造成人才流失」「某政黨／立委／政府的說法是否正確」時，使用本 Skill。
+當使用者詢問政府預算的「被砍多少」「被凍多少」「是不是刪太多」「預算太晚通過是否影響執行」「某個小科目被刪是否會讓整體計畫失效」「某服務是否因此做不下去」「廠商是否不敢投標」「是否造成人才流失」「歷年花費方向」「預算主要花去哪裡」「補助／委辦／採購流向」「某政黨／立委／政府的說法是否正確」時，使用本 Skill。
 
 本 Skill 不替任何政治立場辯護。流程是：
 
-> **先找對 Source of Record → 再做 Amount × Timing × Dependency × Execution → 最後才評價政治論述。**
+> **先找對 Source of Record → 再做 Amount × Timing × Dependency × Use-of-Funds × Execution → 最後才評價政治論述。**
 
 ---
 
-# 一、v1.3 新增：Official Source Routing
+# 一、Official Source Routing
 
 不得只寫「優先找官方來源」。
 
@@ -43,6 +43,8 @@ description: >
 - 審計後認定 → 審計部
 - 標案、流標、決標 → 政府電子採購網
 - 地方政府預決算 → 主計總處地方預決算索引後進入各地方政府正式網站
+- 「依法可以花在哪裡」→ 法規、作業要點、預算用途說明
+- 「實際花去哪裡」→ 決算、會計、採購、補助、受款、審計或正式支用報告
 
 硬性規則：
 
@@ -52,7 +54,7 @@ description: >
 
 ---
 
-# 二、分析框架：Amount × Timing × Dependency × Execution
+# 二、分析框架
 
 ## A. Amount｜到底有多少錢？
 
@@ -121,7 +123,57 @@ description: >
 
 ---
 
-## D. Execution｜最後真的發生什麼？
+## D. Use-of-Funds｜歷年到底花去哪裡？
+
+當問題涉及「花費方向」「用途」「流向」「補助對象」「委辦內容」「錢給了誰／買了什麼」時，啟動 Use-of-Funds Analysis。
+
+必須把用途證據分成四層：
+
+### 1. Budgeted Purpose｜預算允許／預定用途
+
+來源如：法規、作業要點、預算書、計畫用途說明。
+
+只能證明：
+
+> **這筆錢依法或依預算設計可以／預計花在哪裡。**
+
+不能直接當成實際支出。
+
+### 2. Reported Use｜機關正式公開說明的實際用途
+
+來源如：業務報告、解凍報告、專案報告、年報、官方支用彙整。
+
+可作為用途證據，但若沒有逐筆或分類金額，不得自行推算占比。
+
+### 3. Actual Expenditure｜可核對的實際支出
+
+來源如：決算、會計報表、採購決標、補助／受款公開資料、審計報告、依法公開的逐筆資料。
+
+只有這一層才能依資料粒度回答實際支出金額、類別、對象或標案。
+
+### 4. Public Disclosure Level｜公開揭露粒度
+
+每個年度應標示：
+
+- L1：逐筆資料
+- L2：分類金額
+- L3：主要用途／部分案例
+- L4：只有總額
+- L5：未公開／依法受限制
+
+硬性規則：
+
+> **預算允許用途 ≠ 機關宣稱用途 ≠ 實際支出用途 ≠ 公開可見的逐筆明細。**
+
+> **公開資料只能看到 L3，就不能寫成 L1。**
+
+如涉及機密或依法限制公開，必須區分「監督機關可查核」與「公眾可取得逐筆明細」；兩者不是同一件事。
+
+詳細方法見：`docs/支出用途分析.md`
+
+---
+
+## E. Execution｜最後真的發生什麼？
 
 不得從預算數字直接跳到結果。
 
@@ -144,8 +196,6 @@ description: >
 
 # 三、歷史基準規則
 
-## 1. 不只看去年
-
 至少取得：
 
 - 去年法定預算
@@ -165,6 +215,8 @@ description: >
 
 此時應往前比較 2–3 年，必要時建立多年趨勢。
 
+若做 Use-of-Funds 歷年比較，還要檢查用途分類是否改名、拆分、合併或移轉；不可比時應先建立分類 crosswalk。
+
 ---
 
 # 四、刪減與凍結規則
@@ -173,15 +225,11 @@ description: >
 
 代表法定預算減少。
 
-計算：
-
 `刪減率 = 刪減金額 ÷ 本年度原編預算`
 
 ## 凍結
 
 代表經費存在，但動支受條件限制。
-
-計算：
 
 `凍結率 = 凍結金額 ÷ 本年度原編預算`
 
@@ -288,6 +336,7 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 - 是否為三讀前或三讀後
 - 是否有更新的追加／減預算
 - 是否有後續解凍
+- 若做用途分析，是否為當年度實際支出資料，而非下一年度預算說明
 
 若某官方彙整平台尚未更新，但另一官方系統已有更新程序的正式文件，應依問題類型使用較新的 Source of Record，並說明狀態。
 
@@ -311,18 +360,9 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 
 # 九、影響證據分級
 
-所有「預算造成的後果」分成：
-
 ## Level 1：已證實影響
 
-有實際資料證明結果已發生，例如：
-
-- 決算下降
-- 服務量減少
-- 標案流標／取消
-- 工程延後
-- 計畫取消
-- 人力數據變化
+有實際資料證明結果已發生，例如：決算下降、服務量減少、標案流標／取消、工程延後、計畫取消、人力數據變化。
 
 ## Level 2：具體風險
 
@@ -344,44 +384,29 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 
 ## 「廠商不敢投標」
 
-查：
-
-- 投標家數
-- 流標／廢標
-- 重複招標
-- 決標時間
-- 履約期
-- 政府電子採購網資料
+查投標家數、流標／廢標、重複招標、決標時間、履約期與政府電子採購網資料。
 
 ## 「年底突然拿到錢，只能亂花」
 
-查：
-
-- 月／季執行率
-- Q4 支出集中
-- Q4 招標／決標集中
-- 保留款
-- 實際成果
+查月／季執行率、Q4 支出集中、Q4 招標／決標集中、保留款與實際成果。
 
 ## 「人才外流」
 
-查：
-
-- 缺額率
-- 離職率
-- 約聘續約
-- 招聘狀況
-- 正式人力資料
+查缺額率、離職率、約聘續約、招聘狀況與正式人力資料。
 
 ## 「這個 5% 被刪，剩下 95% 都不能做」
 
-查：
+查依賴鏈、法律／契約／技術必要性、替代方案、其他合法財源與下游實際停擺證據。
 
-- 依賴鏈
-- 法律／契約／技術必要性
-- 替代方案
-- 其他合法財源
-- 下游實際停擺證據
+## 「歷年就是把錢花在 X」
+
+先判斷 X 來自：
+
+- Budgeted Purpose
+- Reported Use
+- Actual Expenditure
+
+再確認各年度 Public Disclosure Level。若只有預算用途或部分案例，不得寫成完整實際流向。
 
 ---
 
@@ -389,15 +414,15 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 
 ## Step 1：定義問題
 
-確認討論層級：
+確認討論層級與任務類型：
 
 - 中央總預算
 - 部會／機關
-- 計畫
-- 分支計畫
-- 科目
+- 計畫／分支計畫／科目
 - 特別預算
 - 地方政府
+- 刪凍爭議
+- 歷年用途／支出流向
 
 ## Step 2：做 Source Routing
 
@@ -423,15 +448,25 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 
 若小科目可能卡住整體，建立依賴鏈與替代方案。
 
-## Step 8：驗證 Execution
+## Step 8：需要時執行 Use-of-Funds
+
+若問題在問花費方向／用途／流向：
+
+1. 分開 Budgeted Purpose、Reported Use、Actual Expenditure
+2. 每年度標記 Public Disclosure Level
+3. 分類不可比時建立 crosswalk
+4. 只有分類金額時才計算用途占比
+5. 明確列出無法由公開資料確認的部分
+
+## Step 9：驗證 Execution
 
 找實際執行、採購、服務、人力或工程資料。
 
-## Step 9：影響分級
+## Step 10：影響分級
 
 分成已證實影響／具體風險／利害關係人主張。
 
-## Step 10：最後才判斷政治說法
+## Step 11：最後才判斷政治說法
 
 清楚區分「事實」「推論」「價值判斷」。
 
@@ -444,8 +479,9 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 2–5 句說明：
 
 - 流傳說法是否精確
-- 最終刪減／凍結
+- 最終刪減／凍結（若適用）
 - 是否存在 Timing 或 Dependency 問題
+- 若問用途，公開資料目前能回答到哪個粒度
 - 實際影響證據到哪一級
 
 ## 2. Source Routing
@@ -455,6 +491,7 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 | 今年原編 |  |  |
 | 最終刪凍 |  |  |
 | 決算／執行 |  |  |
+| 支出用途／流向 |  |  |
 
 ## 3. 預算比較
 
@@ -475,11 +512,17 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 
 列出依賴鏈、替代方案、關鍵性分類。
 
-## 6. Execution
+## 6. Use-of-Funds（適用時）
+
+| 年度 | 法定預算 | 決算 | 可確認用途 | 證據類型 | 公開粒度 |
+|---|---:|---:|---|---|---|
+| | | | | Budgeted / Reported / Actual | L1–L5 |
+
+## 7. Execution
 
 列出實際結果及證據分級。
 
-## 7. 審議過程（必要時）
+## 8. 審議過程（必要時）
 
 原始提案與最終結果分開呈現。
 
@@ -498,6 +541,10 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 - 禁止以新聞稿覆蓋更高相關性的正式 Source of Record
 - 禁止忽略官方來源的版本與更新日期
 - 禁止把合理風險寫成已發生事實
+- 禁止把預算允許用途寫成實際支出用途
+- 禁止從少數案例推算整體支出占比
+- 禁止把採購資料當成所有政府支出的完整流向
+- 禁止在公開資料不足時自行補完機密或未公開明細
 
 ---
 
@@ -517,6 +564,10 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 - [ ] 有延遲／追加時建立 Timing
 - [ ] 小科目可能卡全案時做 Dependency Analysis
 - [ ] 我檢查替代方案與其他合法財源
+- [ ] 問花費方向時，我分開 Budgeted Purpose、Reported Use、Actual Expenditure
+- [ ] 我標記了每年度 Public Disclosure Level
+- [ ] 我沒有用少數用途案例推算整體占比
+- [ ] 我沒有把「可被監督機關查核」誤寫成「公眾可取得完整逐筆明細」
 - [ ] 我用 Execution 資料驗證影響
 - [ ] 我將影響分級，而不是把主張當事實
 - [ ] 若資料不足，我寫明無法確認
@@ -525,8 +576,8 @@ https://www.stat.gov.tw/Statistics.aspx?CaN=460&n=3906
 
 # 十五、一句核心心法
 
-> **先找對資料，再算對數字；先證明依賴，再判斷影響。**
+> **先找對資料，再算對數字；先分清「可以怎麼花」與「實際怎麼花」，再判斷依賴與影響。**
 
 完整流程：
 
-> **Official Source Routing → Amount → Timing → Dependency → Execution → Political Judgment**
+> **Official Source Routing → Amount → Timing → Dependency → Use-of-Funds → Execution → Political Judgment**
